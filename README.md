@@ -1,2 +1,3 @@
 # KillOJ-judger
-judger for KillOJ 
+
+judger for KillOJ,  consume rabbitmq message to run judge user code
