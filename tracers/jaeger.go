@@ -20,7 +20,7 @@ import (
 func SetupTracer(serviceName string) (func(), error) {
 
 	// Jaeger setup code
-	//
+
 	config := jaegercfg.Configuration{
 		Sampler: &jaegercfg.SamplerConfig{
 			Type:  jaeger.SamplerTypeConst,

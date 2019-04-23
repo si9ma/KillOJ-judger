@@ -1,6 +1,6 @@
 package tasks
 
 // judge user source code
-func Judge(args ...string) (string, error) {
-	return args[0], nil
+func Judge() (string, error) {
+	return "fk", nil
 }

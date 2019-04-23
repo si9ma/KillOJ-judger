@@ -5,20 +5,23 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"time"
+
+	"github.com/si9ma/KillOJ-common/asyncjob"
+
+	"github.com/RichardKnop/machinery/v1/tasks"
+
+	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
+
+	"github.com/si9ma/KillOJ-common/constants"
+
+	"github.com/si9ma/KillOJ-common/tracing"
 
 	"github.com/google/uuid"
-	"github.com/opentracing/opentracing-go"
-	opentracing_log "github.com/opentracing/opentracing-go/log"
 
-	"github.com/si9ma/KillOJ-judger/tracers"
-
-	mytasks "github.com/si9ma/KillOJ-judger/tasks"
-
-	"github.com/RichardKnop/machinery/v1"
-	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/RichardKnop/machinery/v1/log"
-	"github.com/RichardKnop/machinery/v1/tasks"
+	mlog "github.com/si9ma/KillOJ-common/log"
+	mytasks "github.com/si9ma/KillOJ-judger/tasks"
 	"github.com/urfave/cli"
 )
 
@@ -42,6 +45,22 @@ func init() {
 			Destination: &configPath,
 			Usage:       "Path to a configuration file",
 		},
+	}
+}
+
+func init() {
+
+	cfg := asyncjob.Config{
+		Broker:        "amqp://si9ma:rabbitmq@localhost:5672/",
+		DefaultQueue:  "judger",
+		Exchange:      constants.ProjectName,
+		ExchangeType:  "direct",
+		BindingKey:    constants.ProjectName,
+		PrefetchCount: 3,
+	}
+
+	if err := asyncjob.Init(cfg); err != nil {
+		mlog.Bg().Error("init machinery fail")
 	}
 }
 
@@ -74,51 +93,15 @@ func main() {
 	app.Run(os.Args)
 }
 
-func loadConfig() (*config.Config, error) {
-	if configPath != "" {
-		return config.NewFromYaml(configPath, true)
-	}
-
-	return config.NewFromEnvironment(true)
-}
-
-func startServer() (*machinery.Server, error) {
-	cnf, err := loadConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	// Create server instance
-	server, err := machinery.NewServer(cnf)
-	if err != nil {
-		return nil, err
-	}
-
-	// Register tasks
-	mtasks := map[string]interface{}{
-		"judge": mytasks.Judge,
-	}
-
-	return server, server.RegisterTasks(mtasks)
-}
-
 func worker() error {
-	consumerTag := "machinery_worker"
+	tracer, closer := tracing.NewTracer("worker")
+	opentracing.SetGlobalTracer(tracer)
+	defer closer.Close()
 
-	cleanup, err := tracers.SetupTracer(consumerTag)
-	if err != nil {
-		log.FATAL.Fatalln("Unable to instantiate a tracer:", err)
+	if err := asyncjob.Server().RegisterTask("judge", mytasks.Judge); err != nil {
+		mlog.Bg().Error("register task fail", zap.Error(err))
 	}
-	defer cleanup()
-
-	server, err := startServer()
-	if err != nil {
-		return err
-	}
-
-	// The second argument is a consumer tag
-	// Ideally, each worker should have a unique tag (worker1, worker2 etc)
-	worker := server.NewWorker(consumerTag, 0)
+	worker := asyncjob.Server().NewWorker("worker", 0)
 
 	// Here we inject some custom code for error handling,
 	// start and end of task hooks, useful for metrics for example.
@@ -142,16 +125,9 @@ func worker() error {
 }
 
 func send() error {
-	cleanup, err := tracers.SetupTracer("sender")
-	if err != nil {
-		log.FATAL.Fatalln("Unable to instantiate a tracer:", err)
-	}
-	defer cleanup()
-
-	server, err := startServer()
-	if err != nil {
-		return err
-	}
+	tracer, closer := tracing.NewTracer("sender")
+	opentracing.SetGlobalTracer(tracer)
+	defer closer.Close()
 
 	var judgeTask tasks.Signature
 
@@ -160,36 +136,16 @@ func send() error {
 
 	batchID := uuid.New().String()
 	span.SetBaggageItem("batch.id", batchID)
-	span.LogFields(opentracing_log.String("batch.id", batchID))
-
-	log.INFO.Println("Starting batch:", batchID)
+	mlog.For(ctx).Info("", zap.String("batch.id", batchID))
 
 	judgeTask = tasks.Signature{
 		Name: "judge",
-		Args: []tasks.Arg{
-			{
-				Type:  "string",
-				Value: "arg1",
-			},
-			{
-				Type:  "string",
-				Value: "arg2",
-			},
-		},
 	}
 
-	log.INFO.Println("Single task:")
-
-	asyncResult, err := server.SendTaskWithContext(ctx, &judgeTask)
+	_, err := asyncjob.Server().SendTaskWithContext(ctx, &judgeTask)
 	if err != nil {
 		return fmt.Errorf("Could not send task: %s", err.Error())
 	}
-
-	results, err := asyncResult.Get(time.Duration(time.Millisecond * 5))
-	if err != nil {
-		return fmt.Errorf("Getting task result failed with error: %s", err.Error())
-	}
-	log.INFO.Println(tasks.HumanReadableResults(results))
 
 	return nil
 }
