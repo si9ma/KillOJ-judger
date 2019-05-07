@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	"github.com/si9ma/KillOJ-judger/config"
@@ -19,6 +20,7 @@ const logFilePath = "log/judger.log"
 func Init(cfgPath string) (cfg *config.Config, err error) {
 	var pwd string
 
+	// get log path ( create parent directory is parent directory not exist)
 	logPath, err := utils.MkDirAll4RelativePath(logFilePath)
 	if err != nil {
 		log.Bg().Error("Init log fail",
@@ -26,9 +28,15 @@ func Init(cfgPath string) (cfg *config.Config, err error) {
 		return nil, err
 	}
 
+	// init log
 	if err := log.Init([]string{logPath}, log.Json); err != nil {
 		log.Bg().Error("Init log fail",
 			zap.String("logPath", logPath), zap.Error(err))
+		return nil, err
+	}
+
+	if pwd, err = os.Getwd(); err != nil {
+		log.Bg().Error("get current directory fail", zap.Error(err))
 		return nil, err
 	}
 

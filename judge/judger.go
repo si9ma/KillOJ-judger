@@ -140,7 +140,9 @@ func (j *Judger) do(ctx context.Context, submitId int) (err error) {
 	}
 
 	// 6. run
-	if err := jb.run(); err != nil {
+	if err := jb.run(); err != nil && err != RunResultErr {
+		// treat error as system error,
+		// only when err not equal RunResultErr
 		jb.handleSystemError(err)
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"go.uber.org/zap/buffer"
@@ -54,6 +55,7 @@ type job struct {
 	sandboxCfg      sandbox.Config
 
 	sandboxOut      buffer.Buffer
+	sandboxErr      buffer.Buffer
 	successTestCase int
 	memSum          int64 // memory usage of all test case
 	timeSum         int64 // time usage of all test case
@@ -61,11 +63,13 @@ type job struct {
 
 // create working directory base on id
 func (j *job) mkWorkDir() error {
-	path := judgerWorkDir + "/" + string(j.submitID)
+	path := judgerWorkDir + "/" + strconv.Itoa(j.submitID)
+
+	log.Bg().Info("creating job working directory", zap.Int("submitId", j.submitID))
 
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		log.Bg().Error("create job working directory fail",
-			zap.Int("problemId", j.submitID), zap.Error(err))
+			zap.Int("submitId", j.submitID), zap.Error(err))
 		return err
 	}
 
@@ -75,10 +79,11 @@ func (j *job) mkWorkDir() error {
 
 func (j *job) clean() {
 	// remove working directory
+	log.Bg().Info("remove job working directory", zap.Int("submitId", j.submitID))
 	if _, err := os.Stat(j.workDir); !os.IsNotExist(err) {
 		if err := os.RemoveAll(j.workDir); err != nil {
 			log.Bg().Error("remove job working directory fail",
-				zap.Int("problemId", j.submitID), zap.Error(err))
+				zap.Int("submitId", j.submitID), zap.Error(err))
 		}
 	}
 }
@@ -90,6 +95,8 @@ func (j *job) querySubmitDetail(submitId int) (err error) {
 
 	span.SetTag("submitId", submitId)
 	db := otgrom.SetSpanToGorm(ctx, j.db)
+
+	log.For(ctx).Info("query submit detail", zap.Int("submitId", j.submitID))
 
 	// query submit info
 	if err := db.First(&j.Submit, submitId).Error; err != nil {
@@ -112,7 +119,7 @@ func (j *job) querySubmitDetail(submitId int) (err error) {
 		return err
 	}
 
-	log.For(ctx).Info("success query submit info", zap.Int("submitId", submitId))
+	log.For(ctx).Info("success query submit detail", zap.Int("submitId", submitId))
 	return nil
 }
 
@@ -132,7 +139,8 @@ func (j *job) saveSrcCode() error {
 	}
 
 	j.lang = *lang
-	log.Bg().Info("write file success", zap.String("file", file))
+	log.Bg().Info("save user source code successful", zap.String("file", file),
+		zap.Int("submitId", j.submitID))
 	return nil
 }
 
@@ -149,18 +157,23 @@ func (j *job) compile() (err error) {
 		return err
 	}
 	subcmdArg := "compile"
-	langArg := fmt.Sprintf("--lang %s", j.lang.Name)
-	dirArg := fmt.Sprintf("--dir %s", j.workDir)
-	srcArg := fmt.Sprintf("--src %s", j.lang.FileName)
+	langArg := fmt.Sprintf("--lang=%s", j.lang.Name)
+	dirArg := fmt.Sprintf("--dir=%s", j.workDir)
+	srcArg := fmt.Sprintf("--src=%s", j.lang.FileName)
 	cmd.Args = append(cmd.Args, subcmdArg, langArg, dirArg, srcArg)
-	log.For(ctx).Info("build compile command success",
+	log.For(ctx).Info("build compile command successful",
 		zap.String("cmd", strings.Join(cmd.Args, " ")))
 
 	// compile
 	if err := cmd.Run(); err != nil {
-		log.For(ctx).Error("compile fail", zap.Error(err))
+		log.For(ctx).Error("compile source code fail", zap.String("stderr", j.sandboxErr.String()), zap.Error(err))
 		return err
 	}
+
+	log.Bg().Info("compile source code success",
+		zap.Int("submitId", j.submitID),
+		zap.String("stdout", j.sandboxOut.String()),
+		zap.String("stderr", j.sandboxErr.String()))
 
 	return nil
 }
@@ -168,22 +181,24 @@ func (j *job) compile() (err error) {
 func (j *job) run() (err error) {
 	span, ctx := opentracing.StartSpanFromContext(j.ctx, "batchRun")
 	defer span.Finish()
-	span.SetTag("submitId", j.submitID)
-	span.SetTag("problemId", j.Problem.ID)
-	span.SetTag("caseNum", len(j.ProblemTestCase))
-
 	defer func() {
 		if err != nil {
-			log.For(ctx).Error("judge fail", zap.Error(err))
+			log.For(ctx).Error("run user code fail", zap.Error(err))
 		}
 	}()
 
+	// tracing
+	span.SetTag("submitId", j.submitID)
+	span.SetTag("problemId", j.Problem.ID)
+	span.SetTag("TestCaseNum", len(j.ProblemTestCase))
+
 	// log
-	log.For(ctx).Info("judge problem",
+	log.For(ctx).Info("judge user code",
 		zap.Int("submitId", j.submitID),
 		zap.Int("problemId", j.Problem.ID),
-		zap.Int("caseNum", len(j.ProblemTestCase)))
+		zap.Int("TestCaseNum", len(j.ProblemTestCase)))
 
+	// run all test case
 	for _, testCase := range j.ProblemTestCase {
 		// tracing
 		innerSpan, innerCtx := opentracing.StartSpanFromContext(ctx, "run")
@@ -192,7 +207,7 @@ func (j *job) run() (err error) {
 		innerSpan.SetTag("caseId", testCase.ID)
 
 		// log
-		log.For(innerCtx).Info("run case",
+		log.For(innerCtx).Info("run test case",
 			zap.Int("submitId", j.submitID),
 			zap.Int("problemId", j.Problem.ID),
 			zap.Int("caseId", testCase.ID))
@@ -200,33 +215,30 @@ func (j *job) run() (err error) {
 		var cmd *exec.Cmd
 		cmd, err = j.buildRunnerCmd(testCase)
 		if err != nil {
-			log.Bg().Error("build command fail", zap.Error(err))
+			log.Bg().Error("build run command fail", zap.Error(err))
 			innerSpan.Finish()
 			return err
 		}
 		log.For(innerCtx).Info("build run command success",
 			zap.String("cmd", strings.Join(cmd.Args, " ")))
 
+		// run
 		if err = cmd.Run(); err != nil {
 			// log
 			log.For(innerCtx).Info("run case fail",
 				zap.Int("submitId", j.submitID),
 				zap.Int("problemId", j.Problem.ID),
 				zap.Int("caseId", testCase.ID),
-				zap.Error(err))
+				zap.Error(err),
+				zap.String("stderr", j.sandboxErr.String()))
+
 			innerSpan.Finish()
 			return err
 		}
 
 		if err = j.handSingleRunResult(innerCtx); err != nil {
 			innerSpan.Finish()
-			if err != RunResultErr {
-				return err
-			}
-
-			// break
-			// let handlesandboxresult() to handle error
-			return nil
+			return err
 		}
 
 		innerSpan.Finish()
@@ -241,19 +253,24 @@ func (j *job) handSingleRunResult(ctx context.Context) error {
 	var innerRes judge.InnerResult
 	if err := json.Unmarshal(resStr, &innerRes); err != nil {
 		j.handleSystemError(err)
-		log.For(ctx).Error("unmarshal fail", zap.Error(err))
+		log.For(ctx).Error("unmarshal result fail", zap.Error(err))
 		return err
 	}
 
 	// log
 	switch innerRes.Status {
 	case judge.FAIL:
-		log.For(ctx).Error("run fail", zap.ByteString("result", resStr))
+		log.For(ctx).Error("run user code fail",
+			zap.Int("submitId", j.submitID),
+			zap.String("result", string(resStr)),
+			zap.String("stderr", j.sandboxErr.String()))
 		return RunResultErr
 	case judge.SUCCESS:
-		log.For(ctx).Info("run success", zap.ByteString("result", resStr))
+		log.For(ctx).Info("run user code success",
+			zap.Int("submitId", j.submitID), zap.String("result", string(resStr)))
 		j.timeSum += innerRes.TimeLimit
 		j.memSum += innerRes.MemLimit
+		j.successTestCase++
 		return nil
 	}
 
@@ -269,18 +286,18 @@ func (j *job) buildRunnerCmd(testCase model.ProblemTestCase) (*exec.Cmd, error) 
 
 	// arguments
 	subcmdArg := "run"
-	cmdArg := "--cmd /Main"
-	inputArg := fmt.Sprintf("--input %s", testCase.InputData)
-	dirArg := fmt.Sprintf("--dir %s", j.workDir)
-	expectedArg := fmt.Sprintf("--expected %s", testCase.ExpectedOutput)
+	cmdArg := "--cmd=/Main"
+	inputArg := fmt.Sprintf("--input=%s", testCase.InputData)
+	dirArg := fmt.Sprintf("--dir=%s", j.workDir)
+	expectedArg := fmt.Sprintf("--expected=%s", testCase.ExpectedOutput)
 	scmpArg := "--seccomp"
-	timeArg := fmt.Sprintf("--timeout %d", j.Problem.TimeLimit)
-	memArg := fmt.Sprintf("--memory %d", j.Problem.MemoryLimit)
+	timeArg := fmt.Sprintf("--timeout=%d", j.Problem.TimeLimit)
+	memArg := fmt.Sprintf("--memory=%d", j.Problem.MemoryLimit)
 
 	// java is different
 	if j.lang == codelang.LangJava {
 		subcmdArg = "java"
-		cmdArg = "--class Main"
+		cmdArg = "--class=Main"
 
 		// no --seccomp
 		cmd.Args = append(cmd.Args, subcmdArg, cmdArg, inputArg,
@@ -299,7 +316,7 @@ func (j *job) handleSystemError(err error) {
 	defer span.Finish()
 	span.SetTag("submitId", j.submitID)
 	span.SetTag("problemId", j.Problem.ID)
-	log.Bg().Error("judge system error", zap.Error(err))
+	log.For(ctx).Error("system error arise, handle system error", zap.Error(err))
 
 	client := kredis.WrapRedisClient(ctx, j.redisdb)
 	result := judge.OuterResult{
@@ -312,19 +329,25 @@ func (j *job) handleSystemError(err error) {
 	if v, err := json.Marshal(result); err != nil {
 		log.For(ctx).Error("marshal result error", zap.Error(err))
 	} else {
-		key := constants.SubmitStatusKeyPrefix + string(j.submitID)
+		key := constants.SubmitStatusKeyPrefix + strconv.Itoa(j.submitID)
 		val := string(v)
-		client.Set(key, val, constants.SubmitStatusTimeout)
+		if err := client.Set(key, val, constants.SubmitStatusTimeout).Err(); err != nil {
+			log.For(ctx).Error("save result to redis fail", zap.Error(err))
+		}
+		log.For(ctx).Info("save result to redis success",
+			zap.String("key", key), zap.String("result", val))
 	}
 }
 
 func (j *job) buildCmd() (*exec.Cmd, error) {
 	cmd := exec.Command(j.sandboxCfg.ExePath)
 	j.sandboxOut = buffer.Buffer{} // new buffer
+	j.sandboxErr = buffer.Buffer{}
 	cmd.Stdout = &j.sandboxOut
+	cmd.Stderr = &j.sandboxErr
 
 	// --id
-	idArg := fmt.Sprintf("--id %d", j.submitID)
+	idArg := fmt.Sprintf("--id=%d", j.submitID)
 	cmd.Args = append(cmd.Args, idArg)
 
 	if !j.sandboxCfg.EnableLog {
@@ -340,8 +363,8 @@ func (j *job) buildCmd() (*exec.Cmd, error) {
 			zap.Error(err))
 		return nil, err
 	}
-	logArg := fmt.Sprintf("--log %s", logPath)
-	logfmtArg := fmt.Sprintf("--log-format %s", j.sandboxCfg.LogFormat)
+	logArg := fmt.Sprintf("--log=%s", logPath)
+	logfmtArg := fmt.Sprintf("--log-format=%s", j.sandboxCfg.LogFormat)
 
 	cmd.Args = append(cmd.Args, logArg, logfmtArg)
 	return cmd, nil
@@ -352,21 +375,25 @@ func (j *job) handleSandboxResult() error {
 	defer span.Finish()
 	span.SetTag("submitId", j.submitID)
 	span.SetTag("problemId", j.Problem.ID)
+	log.For(ctx).Info("handle the result of sandbox",
+		zap.Int("submitId", j.submitID), zap.Int("problemId", j.Problem.ID))
 
 	resStr := j.sandboxOut.Bytes()
 	var innerRes judge.InnerResult
 	if err := json.Unmarshal(resStr, &innerRes); err != nil {
 		j.handleSystemError(err)
-		log.For(ctx).Error("unmarshal fail", zap.Error(err))
+		log.For(ctx).Error("unmarshal result fail", zap.Error(err))
 		return err
 	}
 
 	// log
 	switch innerRes.Status {
 	case judge.FAIL:
-		log.For(ctx).Error("fail", zap.ByteString("result", resStr))
+		log.For(ctx).Error("the result of sandbox run is fail",
+			zap.String("result", string(resStr)),
+			zap.String("stderr", j.sandboxErr.String()))
 	case judge.SUCCESS:
-		log.For(ctx).Info("success", zap.ByteString("result", resStr))
+		log.For(ctx).Info("run sandbox success", zap.String("result", string(resStr)))
 	}
 
 	// compile success
@@ -375,13 +402,14 @@ func (j *job) handleSandboxResult() error {
 		return nil
 	}
 
+	// InnerResult convert to OuterResult
 	testCaseNum := len(j.ProblemTestCase)
 	outerResult := innerRes.ToOuterResult()
 	outerResult.IsComplete = true
 	outerResult.TestCaseNum = testCaseNum
 	outerResult.SuccessTestCase = j.successTestCase
 
-	// replace time and memory usage with average value
+	// replace time and memory usage with average value when successful
 	if innerRes.Status == judge.SUCCESS &&
 		innerRes.ResultType == judge.RunResType {
 		outerResult.Memory = j.memSum / int64(testCaseNum)
@@ -392,9 +420,13 @@ func (j *job) handleSandboxResult() error {
 	if v, err := json.Marshal(outerResult); err != nil {
 		log.For(ctx).Error("marshal result error", zap.Error(err))
 	} else {
-		key := constants.SubmitStatusKeyPrefix + string(j.submitID)
+		key := constants.SubmitStatusKeyPrefix + strconv.Itoa(j.submitID)
 		val := string(v)
-		client.Set(key, val, constants.SubmitStatusTimeout)
+		if err := client.Set(key, val, constants.SubmitStatusTimeout).Err(); err != nil {
+			log.For(ctx).Error("save result to redis fail", zap.Error(err))
+		}
+		log.For(ctx).Info("save result to redis success",
+			zap.String("key", key), zap.String("result", val))
 	}
 
 	if innerRes.Status == judge.FAIL {
