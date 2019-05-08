@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	configPath = "config.yml"
+	configPath = "conf/config.yml"
 	workerTag  string
 	app        *cli.App
 	cfg        *config.Config // app config

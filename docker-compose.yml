@@ -1,0 +1,21 @@
+version: '3'
+services:
+  kjudger:
+    image: si9ma/kjudger
+    build:
+      context: .
+    environment:
+      - KILLOJ_DEBUG=true
+      - JAEGER_AGENT_HOST=jaeger
+    networks:
+      - prod_net
+    privileged: true
+    command: ["judger","-c","conf/config.yml.dev"]
+    volumes:
+      - "./log:/judger/log"
+      - "./conf:/judger/conf"
+
+networks:
+  prod_net:
+    external: true
+    
