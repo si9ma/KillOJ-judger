@@ -18,8 +18,7 @@ var (
 	configPath = "conf/config.yml"
 	workerTag  string
 	app        *cli.App
-	cfg        *config.Config // app config
-	err        error
+	judger     *judge.Judger
 )
 
 func init() {
@@ -36,40 +35,43 @@ func init() {
 			Destination: &configPath,
 			Usage:       "Path to a configuration file",
 		},
+		cli.StringFlag{
+			Name:        "tag",
+			Value:       "kjudger",
+			Destination: &workerTag,
+			Usage:       "tag(name) of this judger",
+		},
 	}
-	app.Before = func(context *cli.Context) error {
+
+	app.Action = func(ctx *cli.Context) error {
+		var (
+			cfg *config.Config // app config
+			err error
+		)
+
 		// Init log and configuration
 		if cfg, err = Init(configPath); err != nil {
 			log.Bg().Fatal("initialize fail", zap.String("configPath", configPath), zap.Error(err))
+			return err
 		}
-		return err
-	}
-	app.Commands = []cli.Command{
-		{
-			Name:  "judger",
-			Usage: "launch judge judger",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:        "tag",
-					Value:       "kjudger",
-					Destination: &workerTag,
-					Usage:       "tag(name) of this judger",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				var judger *judge.Judger
-				// new judger
-				if judger, err = judge.NewJudger(*cfg, workerTag); err != nil {
-					log.Bg().Fatal("create judger fail", zap.Error(err))
-				}
 
-				defer judger.Close()
-				if err = judger.Judge(); err != nil {
-					log.Bg().Fatal("run judger fail", zap.Error(err))
-				}
-				return err
-			},
-		},
+		// new judger
+		if judger, err = judge.NewJudger(*cfg, workerTag); err != nil {
+			log.Bg().Fatal("create judger fail", zap.Error(err))
+			return err
+		}
+
+		// judge
+		if err = judger.Judge(); err != nil {
+			log.Bg().Fatal("run judger fail", zap.Error(err))
+			return err
+		}
+
+		return nil
+	}
+
+	app.After = func(context *cli.Context) error {
+		return judger.Close()
 	}
 }
 
@@ -78,30 +80,3 @@ func main() {
 		log.Bg().Fatal("run app fail", zap.Error(err))
 	}
 }
-
-//func send() error {
-//	tracer, closer := tracing.NewTracer("sender")
-//	opentracing.SetGlobalTracer(tracer)
-//	defer closer.Close()
-//
-//	var judgeTask tasks.Signature
-//
-//	span, ctx := opentracing.StartSpanFromContext(context.Background(), "send")
-//	defer span.Finish()
-//
-//	batchID := uuid.New().String()
-//	span.SetBaggageItem("batch.id", batchID)
-//	mlog.For(ctx).Info("", zap.String("batch.id", batchID))
-//
-//	judgeTask = tasks.Signature{
-//		Name:       "judge",
-//		RoutingKey: constants.ProjectName,
-//	}
-//
-//	_, err := asyncjob.Server().SendTaskWithContext(ctx, &judgeTask)
-//	if err != nil {
-//		return fmt.Errorf("Could not send task: %s", err.Error())
-//	}
-//
-//	return nil
-//}

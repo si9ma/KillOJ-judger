@@ -13,7 +13,7 @@ services:
       - ./log:/kjudger/log
       - ./conf:/kjudger/conf
     privileged: true
-    command: ["judge","-c","conf/config.yml.dev","judger"]
+    command: ["judge","-c","conf/config.yml.dev"]
 
 networks:
   prod_net:

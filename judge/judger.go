@@ -79,9 +79,27 @@ func NewJudger(cfg config.Config, workerTag string) (*Judger, error) {
 }
 
 // close tracer
-func (j *Judger) Close() {
-	_ = j.closer.Close() // close tracer
-	_ = j.db.Close()
+func (j *Judger) Close() (err error) {
+	// close db
+	if j.db != nil {
+		if err = j.db.Close(); err != nil {
+			log.Bg().Error("close db fail", zap.Error(err))
+		}
+	}
+
+	// close redis
+	if j.redisdb != nil {
+		if err = j.redisdb.Close(); err != nil {
+			log.Bg().Error("close redis fail", zap.Error(err))
+		}
+	}
+
+	// close tracer
+	if err = j.closer.Close(); err != nil {
+		log.Bg().Error("close tracer fail", zap.Error(err))
+	}
+
+	return
 }
 
 func (j *Judger) Judge() error {
