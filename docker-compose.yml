@@ -9,11 +9,11 @@ services:
       - JAEGER_AGENT_HOST=jaeger
     networks:
       - prod_net
+    volumes:
+      - ./log:/kjudger/log
+      - ./conf:/kjudger/conf
     privileged: true
     command: ["judge","-c","conf/config.yml.dev","judger"]
-    volumes:
-      - "./log:/judger/log"
-      - "./conf:/judger/conf"
 
 networks:
   prod_net:
