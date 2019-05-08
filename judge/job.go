@@ -311,7 +311,7 @@ func (j *job) buildRunnerCmd(testCase model.ProblemTestCase) (*exec.Cmd, error) 
 }
 
 // System error when error
-func (j *job) handleSystemError(err error) {
+func (j *job) handleSystemError(err error) error {
 	span, ctx := opentracing.StartSpanFromContext(j.ctx, "handleSystemError")
 	defer span.Finish()
 	span.SetTag("submitId", j.submitID)
@@ -333,10 +333,13 @@ func (j *job) handleSystemError(err error) {
 		val := string(v)
 		if err := client.Set(key, val, constants.SubmitStatusTimeout).Err(); err != nil {
 			log.For(ctx).Error("save result to redis fail", zap.Error(err))
+			return err
 		}
 		log.For(ctx).Info("save result to redis success",
 			zap.String("key", key), zap.String("result", val))
 	}
+
+	return nil
 }
 
 func (j *job) buildCmd() (*exec.Cmd, error) {
@@ -424,6 +427,7 @@ func (j *job) handleSandboxResult() error {
 		val := string(v)
 		if err := client.Set(key, val, constants.SubmitStatusTimeout).Err(); err != nil {
 			log.For(ctx).Error("save result to redis fail", zap.Error(err))
+			return err
 		}
 		log.For(ctx).Info("save result to redis success",
 			zap.String("key", key), zap.String("result", val))

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[ "$1" != "judger" ] && $@ && exit 0
+[ "$1" != "judge" ] && $@ && exit 0
 
 mount -oremount,rw /sys/fs/cgroup
-./kjudger $@
+./kjudger ${@:2} # skip first arg

@@ -110,28 +110,24 @@ func (j *Judger) do(ctx context.Context, submitId int) (err error) {
 
 	// 1. query submit detail
 	if err = jb.querySubmitDetail(submitId); err != nil {
-		jb.handleSystemError(err)
-		return err
+		return jb.handleSystemError(err)
 	}
 
 	// 2.create job working directory
 	if err = jb.mkWorkDir(); err != nil {
-		jb.handleSystemError(err)
 		log.For(ctx).Error("create job working directory fail", zap.Error(err))
-		return err
+		return jb.handleSystemError(err)
 	}
 
 	// 3. save source code
 	if err = jb.saveSrcCode(); err != nil {
-		jb.handleSystemError(err)
 		log.For(ctx).Error("save source code fail", zap.Error(err))
-		return err
+		return jb.handleSystemError(err)
 	}
 
 	// 4. compile
 	if err := jb.compile(); err != nil {
-		jb.handleSystemError(err)
-		return err
+		return jb.handleSystemError(err)
 	}
 
 	// 5. handle compile result
@@ -143,8 +139,7 @@ func (j *Judger) do(ctx context.Context, submitId int) (err error) {
 	if err := jb.run(); err != nil && err != RunResultErr {
 		// treat error as system error,
 		// only when err not equal RunResultErr
-		jb.handleSystemError(err)
-		return err
+		return jb.handleSystemError(err)
 	}
 
 	// 7. handle run result

@@ -10,7 +10,7 @@ services:
     networks:
       - prod_net
     privileged: true
-    command: ["judger","-c","conf/config.yml.dev"]
+    command: ["judge","-c","conf/config.yml.dev","judger"]
     volumes:
       - "./log:/judger/log"
       - "./conf:/judger/conf"
@@ -18,4 +18,3 @@ services:
 networks:
   prod_net:
     external: true
-    
