@@ -1221,10 +1221,9 @@
 		},
 		{
 			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
-			"origin": "go.mongodb.org/mongo-driver/vendor/golang.org/x/crypto/pbkdf2",
 			"path": "golang.org/x/crypto/pbkdf2",
-			"revision": "305bc4a5e4131420fe8ba5628e6faa9e6ade4e86",
-			"revisionTime": "2019-04-05T19:19:37Z"
+			"revision": "a29dc8fdc73485234dbef99ebedb95d2eced08de",
+			"revisionTime": "2019-04-26T14:07:02Z"
 		},
 		{
 			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
