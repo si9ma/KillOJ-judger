@@ -3,7 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=go,linux,jetbrains+all
 
 # log
-log/
+*.log
 
 ### Go ###
 # Binaries for programs and plugins
