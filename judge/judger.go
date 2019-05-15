@@ -133,47 +133,59 @@ func (j *Judger) do(ctx context.Context, submitId int) (err error) {
 
 	// 2.create job working directory
 	if err = jb.mkWorkDir(); err != nil {
-		log.For(ctx).Error("create job working directory fail", zap.Error(err))
+		log.For(ctx).Error("create job working directory fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		return jb.handleSystemError(err)
 	}
-	log.For(ctx).Info("create job working directory success")
+	log.For(ctx).Info("create job working directory success",
+		zap.Int("submitID", submitId))
 
 	// 3. save source code
 	if err = jb.saveSrcCode(); err != nil {
-		log.For(ctx).Error("save source code fail", zap.Error(err))
+		log.For(ctx).Error("save source code fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		return jb.handleSystemError(err)
 	}
-	log.For(ctx).Info("save source code success")
+	log.For(ctx).Info("save source code success",
+		zap.Int("submitID", submitId))
 
 	// 4. compile
 	if err := jb.compile(); err != nil {
-		log.For(ctx).Error("compile user code fail", zap.Error(err))
+		log.For(ctx).Error("compile user code fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		return jb.handleSystemError(err)
 	}
-	log.For(ctx).Info("compile source code success")
+	log.For(ctx).Info("compile source code success",
+		zap.Int("submitID", submitId))
 
 	// 5. handle compile result
 	if err := jb.handleSandboxResult(); err != nil {
-		log.For(ctx).Error("handle compile result fail", zap.Error(err))
+		log.For(ctx).Error("handle compile result fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		return err
 	}
-	log.For(ctx).Info("handle compile result success")
+	log.For(ctx).Info("handle compile result success",
+		zap.Int("submitID", submitId))
 
 	// 6. run
 	if err := jb.run(); err != nil && err != RunResultErr {
-		log.For(ctx).Error("run user code fail", zap.Error(err))
+		log.For(ctx).Error("run user code fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		// treat error as system error,
 		// only when err not equal RunResultErr
 		return jb.handleSystemError(err)
 	}
-	log.For(ctx).Info("run user code success")
+	log.For(ctx).Info("run user code success",
+		zap.Int("submitID", submitId))
 
 	// 7. handle run result
 	if err := jb.handleSandboxResult(); err != nil {
-		log.For(ctx).Error("handle run result fail", zap.Error(err))
+		log.For(ctx).Error("handle run result fail",
+			zap.Error(err), zap.Int("submitID", submitId))
 		return err
 	}
-	log.For(ctx).Info("handle run result success")
+	log.For(ctx).Info("handle run result success",
+		zap.Int("submitID", submitId))
 
 	return nil
 }
