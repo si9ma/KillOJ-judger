@@ -318,7 +318,6 @@ func (j *job) handleSystemError(err error) error {
 	span.SetTag("problemId", j.Problem.ID)
 	log.For(ctx).Error("system error arise, handle system error", zap.Error(err))
 
-	client := kredis.WrapRedisClient(ctx, j.redisdb)
 	result := judge.OuterResult{
 		ID:         string(j.submitID),
 		Status:     judge.SystemErrorStatus,
@@ -326,20 +325,7 @@ func (j *job) handleSystemError(err error) error {
 		IsComplete: true,
 	}
 
-	if v, err := json.Marshal(result); err != nil {
-		log.For(ctx).Error("marshal result error", zap.Error(err))
-	} else {
-		key := constants.SubmitStatusKeyPrefix + strconv.Itoa(j.submitID)
-		val := string(v)
-		if err := client.Set(key, val, constants.SubmitStatusTimeout).Err(); err != nil {
-			log.For(ctx).Error("save result to redis fail", zap.Error(err))
-			return err
-		}
-		log.For(ctx).Info("save result to redis success",
-			zap.String("key", key), zap.String("result", val))
-	}
-
-	return nil
+	return j.saveResult(ctx, &result)
 }
 
 func (j *job) buildCmd() (*exec.Cmd, error) {
@@ -399,7 +385,7 @@ func (j *job) handleSandboxResult() error {
 		log.For(ctx).Info("run sandbox success", zap.String("result", string(resStr)))
 	}
 
-	// compile success
+	// if compile success
 	if innerRes.Status == judge.SUCCESS &&
 		innerRes.ResultType == judge.CompileResType {
 		return nil
@@ -419,9 +405,25 @@ func (j *job) handleSandboxResult() error {
 		outerResult.Runtime = j.timeSum / int64(testCaseNum)
 	}
 
-	client := kredis.WrapRedisClient(ctx, j.redisdb)
-	if v, err := json.Marshal(outerResult); err != nil {
+	if err := j.saveResult(ctx, &outerResult); err != nil {
+		return err
+	}
+
+	if innerRes.Status == judge.FAIL {
+		return errors.New("sandbox error")
+	}
+
+	return nil
+}
+
+func (j *job) saveResult(ctx context.Context, result *judge.OuterResult) error {
+	client := kredis.WrapRedisClusterClient(ctx, j.redisdb)
+	db := otgrom.SetSpanToGorm(ctx, j.db)
+
+	// save result
+	if v, err := json.Marshal(result); err != nil {
 		log.For(ctx).Error("marshal result error", zap.Error(err))
+		return err
 	} else {
 		key := constants.SubmitStatusKeyPrefix + strconv.Itoa(j.submitID)
 		val := string(v)
@@ -433,8 +435,24 @@ func (j *job) handleSandboxResult() error {
 			zap.String("key", key), zap.String("result", val))
 	}
 
-	if innerRes.Status == judge.FAIL {
-		return errors.New("sandbox error")
+	// save is complete
+	k := constants.UserProblemSubmitIsCompletePrefix + strconv.Itoa(j.Submit.UserID) + "_" + strconv.Itoa(j.Submit.ProblemID)
+	if err := client.Set(k, true, constants.SubmitStatusTimeout).Err(); err != nil {
+		log.For(ctx).Error("save is complete of submit to redis fail", zap.Error(err),
+			zap.Int("submidID", j.submitID))
+		return err
+	}
+
+	// update db
+	j.Submit.Result = result.Status.Code
+	j.Submit.RunTime = int(result.Runtime)
+	j.Submit.MemoryUsage = int(result.Memory)
+	j.Submit.IsComplete = true
+	err := db.Save(&j.Submit).Error
+	if err != nil {
+		log.For(ctx).Error("save run sandbox result to db fail", zap.Error(err),
+			zap.Int("submitID", j.submitID))
+		return err
 	}
 
 	return nil
