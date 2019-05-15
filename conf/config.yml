@@ -12,12 +12,7 @@ mysql:
 
 redis:
   addrs:
-    - 'redis:7000'
-    - 'redis:7001'
-    - 'redis:7002'
-    - 'redis:7003'
-    - 'redis:7004'
-    - 'redis:7005'
+    - 'redis:6379'
   dialTimeOut: 2000
   readTimeOut: 2000
   writeTimeOut: 2000

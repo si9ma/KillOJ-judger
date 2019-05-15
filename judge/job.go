@@ -442,6 +442,8 @@ func (j *job) saveResult(ctx context.Context, result *judge.OuterResult) error {
 			zap.Int("submidID", j.submitID))
 		return err
 	}
+	log.For(ctx).Info("save is complete result to redis success",
+		zap.String("key", k))
 
 	// update db
 	j.Submit.Result = result.Status.Code
