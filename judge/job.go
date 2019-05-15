@@ -244,6 +244,9 @@ func (j *job) run() (err error) {
 		innerSpan.Finish()
 	}
 
+	log.Bg().Info("run source code complete",
+		zap.Int("submitId", j.submitID))
+
 	return nil
 }
 

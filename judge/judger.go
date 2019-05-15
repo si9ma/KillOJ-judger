@@ -136,34 +136,44 @@ func (j *Judger) do(ctx context.Context, submitId int) (err error) {
 		log.For(ctx).Error("create job working directory fail", zap.Error(err))
 		return jb.handleSystemError(err)
 	}
+	log.For(ctx).Info("create job working directory success")
 
 	// 3. save source code
 	if err = jb.saveSrcCode(); err != nil {
 		log.For(ctx).Error("save source code fail", zap.Error(err))
 		return jb.handleSystemError(err)
 	}
+	log.For(ctx).Info("save source code success")
 
 	// 4. compile
 	if err := jb.compile(); err != nil {
+		log.For(ctx).Error("compile user code fail", zap.Error(err))
 		return jb.handleSystemError(err)
 	}
+	log.For(ctx).Info("compile source code success")
 
 	// 5. handle compile result
 	if err := jb.handleSandboxResult(); err != nil {
+		log.For(ctx).Error("handle compile result fail", zap.Error(err))
 		return err
 	}
+	log.For(ctx).Info("handle compile result success")
 
 	// 6. run
 	if err := jb.run(); err != nil && err != RunResultErr {
+		log.For(ctx).Error("run user code fail", zap.Error(err))
 		// treat error as system error,
 		// only when err not equal RunResultErr
 		return jb.handleSystemError(err)
 	}
+	log.For(ctx).Info("run user code success")
 
 	// 7. handle run result
 	if err := jb.handleSandboxResult(); err != nil {
+		log.For(ctx).Error("handle run result fail", zap.Error(err))
 		return err
 	}
+	log.For(ctx).Info("handle run result success")
 
 	return nil
 }
