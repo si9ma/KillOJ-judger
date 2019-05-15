@@ -448,7 +448,9 @@ func (j *job) saveResult(ctx context.Context, result *judge.OuterResult) error {
 	j.Submit.RunTime = int(result.Runtime)
 	j.Submit.MemoryUsage = int(result.Memory)
 	j.Submit.IsComplete = true
-	err := db.Save(&j.Submit).Error
+
+	// disable auth save and auth update
+	err := db.Set("gorm:association_autoupdate", false).Set("gorm:association_autocreate", false).Save(&j.Submit).Error
 	if err != nil {
 		log.For(ctx).Error("save run sandbox result to db fail", zap.Error(err),
 			zap.Int("submitID", j.submitID))
