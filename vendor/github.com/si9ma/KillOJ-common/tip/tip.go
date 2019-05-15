@@ -239,6 +239,11 @@ var (
 		language.Chinese.String(): "任务还没有结束",
 		language.English.String(): "task haven't complete",
 	}
+
+	AtLeastTip = Tip{
+		language.Chinese.String(): "至少需要 %s 个 %s",
+		language.English.String(): "need %s %s at least",
+	}
 )
 
 func (t Tip) String() string {
