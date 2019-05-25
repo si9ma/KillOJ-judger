@@ -14,6 +14,7 @@ type Contest struct {
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"-"`
 	Users     []User    `gorm:"many2many:user_in_contest;" json:"-"`
 	Problems  []Problem `gorm:"foreignkey:BelongToID" json:"-"`
+	Owner     User      `json:"owner" gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false" binding:"-"`
 }
 
 // TableName sets the insert table name for this struct type

@@ -9,7 +9,7 @@ type UserVoteProblem struct {
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"-"`
 	UserID    int       `gorm:"column:user_id;primary_key" json:"-"`
 	ProblemID int       `gorm:"column:problem_id;primary_key" json:"problem_id"`
-	Attitude  int       `gorm:"column:attitude" json:"attitude" form:"attitude" binding:"oneof=-1 1"`
+	Attitude  int       `gorm:"column:attitude" json:"attitude" form:"attitude" binding:"oneof=-1 0 1"`
 }
 
 // TableName sets the insert table name for this struct type

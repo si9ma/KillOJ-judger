@@ -241,8 +241,8 @@ var (
 	}
 
 	AtLeastTip = Tip{
-		language.Chinese.String(): "至少需要 %s 个 %s",
-		language.English.String(): "need %s %s at least",
+		language.Chinese.String(): "至少需要 %v 个 %v",
+		language.English.String(): "need %v %v at least",
 	}
 )
 

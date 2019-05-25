@@ -45,6 +45,7 @@ type job struct {
 	submitID        int
 	Submit          model.Submit
 	Problem         model.Problem
+	Limit           model.Limit
 	ProblemTestCase []model.ProblemTestCase
 	workDir         string
 	ctx             context.Context
@@ -110,6 +111,24 @@ func (j *job) querySubmitDetail(submitId int) (err error) {
 		log.For(ctx).Error("query problem with submit info error ",
 			zap.Int("submitId", submitId), zap.Error(err))
 		return err
+	}
+
+	// unmarshal limit info
+	var limits []model.Limit
+	if err := json.Unmarshal(j.Problem.Limit, &limits); err != nil {
+		log.For(ctx).Error("unmarshal limit info fail",
+			zap.Int("submitId", submitId), zap.Error(err))
+		return err
+	}
+
+	// todo There may be a bug here
+	if len(limits) > j.Submit.Language {
+		j.Limit = limits[j.Submit.Language]
+	} else {
+		j.Limit = model.Limit{
+			TimeLimit:   j.Problem.TimeLimit,
+			MemoryLimit: j.Problem.MemoryLimit,
+		}
 	}
 
 	// query test case list
@@ -294,8 +313,8 @@ func (j *job) buildRunnerCmd(testCase model.ProblemTestCase) (*exec.Cmd, error) 
 	dirArg := fmt.Sprintf("--dir=%s", j.workDir)
 	expectedArg := fmt.Sprintf("--expected=%s", testCase.ExpectedOutput)
 	scmpArg := "--seccomp"
-	timeArg := fmt.Sprintf("--timeout=%d", j.Problem.TimeLimit)
-	memArg := fmt.Sprintf("--memory=%d", j.Problem.MemoryLimit)
+	timeArg := fmt.Sprintf("--timeout=%d", j.Limit.TimeLimit)
+	memArg := fmt.Sprintf("--memory=%d", j.Limit.MemoryLimit)
 
 	// java is different
 	if j.lang == codelang.LangJava {

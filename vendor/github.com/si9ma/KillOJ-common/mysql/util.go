@@ -105,7 +105,7 @@ func ShouldUnique(c *gin.Context, ctx context.Context, db *gorm.DB, fieldMap map
 		log.For(ctx).Error("fields already exist", zap.Any("fields", checkMap))
 
 		_ = c.Error(kerror.EmptyError).SetType(gin.ErrorTypePublic).
-			SetMeta(kerror.ErrAlreadyExist.WithArgs(checkMap))
+			SetMeta(kerror.ErrAlreadyExist.WithArgs(checkMap).With(checkMap))
 		return false
 	} else if res == NotFound {
 		return true

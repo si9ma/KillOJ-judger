@@ -10,14 +10,14 @@ type OuterResult struct {
 	TimeLimit int64  `json:"timelimit,omitempty"` // time limit in ms
 
 	// only for run result
-	Runtime         int64  `json:"runtime,omitempty"`  // time usage in ms
-	Memory          int64  `json:"memory,omitempty"`   // memory usage in KB
+	Runtime         int64  `json:"runtime"`  // time usage in ms
+	Memory          int64  `json:"memory"`   // memory usage in KB
 	MemLimit        int64  `json:"memlimit,omitempty"` // memory limit in KB
 	Input           string `json:"input,omitempty"`
 	Output          string `json:"output,omitempty"`
 	Expected        string `json:"expected,omitempty"`
-	TestCaseNum     int    `json:"test_case_num,omitempty"`
-	SuccessTestCase int    `json:"success_test_case,omitempty"`
+	TestCaseNum     int    `json:"test_case_num"`
+	SuccessTestCase int    `json:"success_test_case"`
 
 	//
 	IsComplete bool `json:"iscomplete"`

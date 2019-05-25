@@ -702,88 +702,88 @@
 			"revisionTime": "2019-04-16T08:48:30Z"
 		},
 		{
-			"checksumSHA1": "TCpOCidm1VT79N7iiUdu2tgGfBU=",
+			"checksumSHA1": "mWBjELv/qU7M99XBUbQjIpr0dkY=",
 			"path": "github.com/si9ma/KillOJ-backend/kerror",
-			"revision": "ff50d3b811fe3f7600c070000871818ca1375f44",
-			"revisionTime": "2019-05-14T14:52:47Z"
+			"revision": "485eaf97da187bbac5963f9f79d60392d20e3bf5",
+			"revisionTime": "2019-05-25T09:05:49Z"
 		},
 		{
 			"checksumSHA1": "7MjP2QKU+N2t/MrJnFoingSSPdQ=",
 			"path": "github.com/si9ma/KillOJ-common/asyncjob",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "Q3BrhdY7WRkFv8/eSqID+xG9zNE=",
 			"path": "github.com/si9ma/KillOJ-common/codelang",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "7+p/2UxIIVoDTyHtDqQSpi1lTrg=",
 			"path": "github.com/si9ma/KillOJ-common/constants",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
-			"checksumSHA1": "6AlcPOkcVDJRhLSE3LWtHqhYrQE=",
+			"checksumSHA1": "Yb+nTnM9cAO1djsEWagygX0DQTk=",
 			"path": "github.com/si9ma/KillOJ-common/judge",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "d3H1q3pQyeNBEGQc3TzK/PstobM=",
 			"path": "github.com/si9ma/KillOJ-common/kredis",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "JQ1usNf9UPhGztk0kCcLuyDVCRU=",
 			"path": "github.com/si9ma/KillOJ-common/lang",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "zRGB3SLjjcNhkeylwfxlVVh4a+s=",
 			"path": "github.com/si9ma/KillOJ-common/log",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
-			"checksumSHA1": "uTenUA0UnyNCXh7OotieMQk1h+Y=",
+			"checksumSHA1": "guPFjWFOnLz5Z4ezeD7vWSRWMrg=",
 			"path": "github.com/si9ma/KillOJ-common/model",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
-			"checksumSHA1": "rnBoof5c4MQQfnIkXW3SC05mD5U=",
+			"checksumSHA1": "ml0a2206oATDuS++CWAwBrrFOrc=",
 			"path": "github.com/si9ma/KillOJ-common/mysql",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "aHxUT3KufW1DVJxXI/ziIYZX/Tk=",
 			"path": "github.com/si9ma/KillOJ-common/sandbox",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
-			"checksumSHA1": "f8DoUl3BXGmMBuSqD3Cc58tSeLo=",
+			"checksumSHA1": "uVDdyy/D31GHHaM3vnt8SSzWXrE=",
 			"path": "github.com/si9ma/KillOJ-common/tip",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "BmD4Tt5bU1Vcj/zlQp3LAlB4zCY=",
 			"path": "github.com/si9ma/KillOJ-common/tracing",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "cRm8YUH6g3P7H4BZNkhv82d9xRI=",
 			"path": "github.com/si9ma/KillOJ-common/utils",
-			"revision": "d735578de215dd3fdb28a95be10b173052498cc0",
-			"revisionTime": "2019-05-15T23:20:17Z"
+			"revision": "4089c188a4f297a620bfc0a2c99b99dc03767789",
+			"revisionTime": "2019-05-24T23:58:41Z"
 		},
 		{
 			"checksumSHA1": "3rZLTcSd0wu/JMTA0QhbwFOVmtw=",
@@ -1269,9 +1269,10 @@
 		},
 		{
 			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
+			"origin": "go.mongodb.org/mongo-driver/vendor/golang.org/x/crypto/pbkdf2",
 			"path": "golang.org/x/crypto/pbkdf2",
-			"revision": "a29dc8fdc73485234dbef99ebedb95d2eced08de",
-			"revisionTime": "2019-04-26T14:07:02Z"
+			"revision": "305bc4a5e4131420fe8ba5628e6faa9e6ade4e86",
+			"revisionTime": "2019-04-05T19:19:37Z"
 		},
 		{
 			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
