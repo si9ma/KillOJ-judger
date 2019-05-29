@@ -13,7 +13,7 @@ type User struct {
 	Name         string    `gorm:"column:name" json:"name" binding:"required,max=100,excludesall=!@#?"`
 	CreatedAt    time.Time `gorm:"column:created_at" json:"-"`
 	UpdatedAt    time.Time `gorm:"column:updated_at" json:"-"`
-	Role         int       `gorm:"column:role" json:"-"`
+	Role         int       `gorm:"column:role" json:"role"`
 
 	// password from user input, password should't response to user,
 	// so set omitempty && set this field to nil before return

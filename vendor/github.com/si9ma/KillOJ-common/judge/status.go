@@ -10,9 +10,9 @@ var (
 		Code: 0,
 		Msg:  "Accepted",
 	}
-	JudingStatus = Status{
+	JudgingStatus = Status{
 		Code: 1,
-		Msg:  "Juding",
+		Msg:  "Judging",
 	}
 	RuntimeErrorStatus = Status{
 		Code: 2,
