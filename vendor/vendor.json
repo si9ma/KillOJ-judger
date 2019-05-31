@@ -704,86 +704,86 @@
 		{
 			"checksumSHA1": "dCsQN4h7+zWVtHwoGBRibEJuA60=",
 			"path": "github.com/si9ma/KillOJ-backend/kerror",
-			"revision": "7691b47ae4f0e881cd7ae88efdd804d2fe4d8507",
-			"revisionTime": "2019-05-30T02:03:13Z"
+			"revision": "8d438c3bd27a77417ea472d3fae53ebe5583670a",
+			"revisionTime": "2019-05-31T08:14:29Z"
 		},
 		{
 			"checksumSHA1": "7MjP2QKU+N2t/MrJnFoingSSPdQ=",
 			"path": "github.com/si9ma/KillOJ-common/asyncjob",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "Q3BrhdY7WRkFv8/eSqID+xG9zNE=",
 			"path": "github.com/si9ma/KillOJ-common/codelang",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "q/dTTSyzDKnZLywu+FRBA5j2LPg=",
 			"path": "github.com/si9ma/KillOJ-common/constants",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "s0CELLWbyQYhgsDkkaxXSLLkQ+s=",
 			"path": "github.com/si9ma/KillOJ-common/judge",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "d3H1q3pQyeNBEGQc3TzK/PstobM=",
 			"path": "github.com/si9ma/KillOJ-common/kredis",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "JQ1usNf9UPhGztk0kCcLuyDVCRU=",
 			"path": "github.com/si9ma/KillOJ-common/lang",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "zRGB3SLjjcNhkeylwfxlVVh4a+s=",
 			"path": "github.com/si9ma/KillOJ-common/log",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
-			"checksumSHA1": "hnV9sDv0F34gUc3Kv3nOjWp7A3s=",
+			"checksumSHA1": "N2xk0baKR9v5i1fPHYF7rtqLSsY=",
 			"path": "github.com/si9ma/KillOJ-common/model",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "ml0a2206oATDuS++CWAwBrrFOrc=",
 			"path": "github.com/si9ma/KillOJ-common/mysql",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "aHxUT3KufW1DVJxXI/ziIYZX/Tk=",
 			"path": "github.com/si9ma/KillOJ-common/sandbox",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "uVDdyy/D31GHHaM3vnt8SSzWXrE=",
 			"path": "github.com/si9ma/KillOJ-common/tip",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "BmD4Tt5bU1Vcj/zlQp3LAlB4zCY=",
 			"path": "github.com/si9ma/KillOJ-common/tracing",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "cRm8YUH6g3P7H4BZNkhv82d9xRI=",
 			"path": "github.com/si9ma/KillOJ-common/utils",
-			"revision": "57ec74cdb0b381ce535256fe0ec109485faa452d",
-			"revisionTime": "2019-05-30T02:00:57Z"
+			"revision": "cd8b0f21349294522560bca4c571a302707d5ed2",
+			"revisionTime": "2019-05-31T08:11:43Z"
 		},
 		{
 			"checksumSHA1": "3rZLTcSd0wu/JMTA0QhbwFOVmtw=",
